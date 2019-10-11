@@ -1,0 +1,21 @@
+# This Makefile can be used with GNU Make or BSD Make
+
+LIB=libSCHEME_NAME_clean.a
+
+HEADERS = api.h threebears_common.h melas_fec.h params.h ring.h threebears.h
+OBJECTS = kem.o melas_fec.o ring.o threebears.o 
+
+
+CFLAGS=-O3 -Wcast-align=strict -Wall -Wconversion -Wextra -Wpedantic -Wvla -Werror -Wmissing-prototypes -Wredundant-decls -std=c99 -I../../../common $(EXTRAFLAGS)
+
+all: $(LIB)
+
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(LIB): $(OBJECTS)
+	$(AR) -r $@ $(OBJECTS)
+
+clean:
+	$(RM) $(OBJECTS)
+	$(RM) $(LIB)
