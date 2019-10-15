@@ -2,11 +2,11 @@
 
 LIB=libSCHEME_NAME_clean.a
 
-HEADERS = api.h threebears_common.h melas_fec.h params.h ring.h threebears.h
+HEADERS = api.h melas_fec.h params.h ring.h threebears.h
 OBJECTS = kem.o melas_fec.o ring.o threebears.o 
 
 
-CFLAGS=-O3 -Wcast-align=strict -Wall -Wconversion -Wextra -Wpedantic -Wvla -Werror -Wmissing-prototypes -Wredundant-decls -std=c99 -I../../../common $(EXTRAFLAGS)
+CFLAGS=-O3 -Wcast-align=strict -Wall -Wconversion -Wextra -Wpedantic -Wvla -Wmissing-prototypes -Wredundant-decls -std=c99 -I../../../common $(EXTRAFLAGS)
 
 all: $(LIB)
 

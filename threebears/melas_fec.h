@@ -1,22 +1,26 @@
-/** ThreeBears Melas Forward Error Correction header */
 #ifndef __THREEBEARS_MELAS_FEC_H__
 #define __THREEBEARS_MELAS_FEC_H__
-#include "threebears_common.h"
+
+#include "api.h"
+
 #define MELAS_FEC_BYTES 3
 #define MELAS_FEC_BITS 18
 
+typedef uint32_t fec_gf_t;
+static const fec_gf_t Q = 0x211;
+
 /* Append 3 bytes of FEC(data) to data, so that the FEC becomes 0 */
-void INTERNAL melas_fec_set(
+void PQCLEAN_NAMESPACE_melas_fec_set(
     uint8_t out[MELAS_FEC_BYTES],
     const uint8_t *data,
-    unsigned len
+    size_t len
 );
 
 /* Append 3 bytes of FEC(data) to data, so that the FEC becomes 0 */
-void INTERNAL melas_fec_correct(
+void PQCLEAN_NAMESPACE_melas_fec_correct(
     uint8_t *data,
-    unsigned len,
+    size_t len,
     const uint8_t fec[MELAS_FEC_BYTES]
 );
 
-#endif /*__THREEBEARS_MELAS_FEC_H__*/
+#endif

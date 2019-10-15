@@ -1,4 +1,3 @@
-/** Parameter definitions for BabyBear */
 #ifndef __THREEBEARS_PARAMS_H__
 #define __THREEBEARS_PARAMS_H__
 
@@ -9,22 +8,22 @@
 #define LGX                  10
 #define DIGITS               312
 #define DIM                  2
-#define VAR_TIMES_128        80
+#define VAR_TIMES_128        72
 #define LPR_BITS             4
 #define FEC_BITS             18
 #define CCA                  1
 #define SHARED_SECRET_BYTES  32
 #define PRIVATE_KEY_BYTES    40
+#define PRF_KEY_BYTES        PRIVATE_KEY_BYTES
 
 #define BEAR_NAME   "BabyBear"
-#define encapsulate BabyBear_encapsulate
-#define decapsulate BabyBear_decapsulate
-#define get_pubkey  BabyBear_get_pubkey
+#define encapsulate PQCLEAN_NAMESPACE_encapsulate
+#define decapsulate PQCLEAN_NAMESPACE_decapsulate
+#define get_pubkey  PQCLEAN_NAMESPACE_get_pubkey
 
 #define GF_BYTES ((LGX*DIGITS+7)/8)
 #define PUBLIC_KEY_BYTES (MATRIX_SEED_BYTES + DIM*GF_BYTES)
 #define CAPSULE_BYTES \
   (DIM*GF_BYTES + IV_BYTES + ((ENC_SEED_BYTES*8+FEC_BITS)*LPR_BITS+7)/8)
 
-#endif /*__THREEBEARS_PARAMS_H__*/
-
+#endif

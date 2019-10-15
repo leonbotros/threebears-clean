@@ -1,4 +1,3 @@
-/** Public header */
 #ifndef __THREE_BEARS_MAMABEAR_H__
 #define __THREE_BEARS_MAMABEAR_H__
 
@@ -49,14 +48,13 @@ void MamaBear_encapsulate (
  * @param[out] shared_secret The shared secret.
  * @param[in] capsule The capsule produced by encapsulate_cca2.
  * @param[in] sk The private key.
- * @return -1 on failure, 0 on success.
- * @warning The value of shared_secret must not be used on failure
  */
-int __attribute__((warn_unused_result)) MamaBear_decapsulate (
+void MamaBear_decapsulate (
     uint8_t shared_secret[MAMABEAR_SHARED_SECRET_BYTES],
     const uint8_t capsule[MAMABEAR_CAPSULE_BYTES],
     const uint8_t sk[MAMABEAR_PRIVATE_KEY_BYTES]
 );
 
-#endif /*__THREE_BEARS_MAMABEAR_H__*/
+void PQCLEAN_NAMESPACE_secure_bzero (void *s,size_t size);
 
+#endif

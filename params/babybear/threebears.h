@@ -1,4 +1,3 @@
-/** Public header */
 #ifndef __THREE_BEARS_BABYBEAR_H__
 #define __THREE_BEARS_BABYBEAR_H__
 
@@ -18,7 +17,7 @@
  * @param[out] pk The public key.
  * @param[in] sk The private key, which must be uniformly random.
  */
-void BabyBear_get_pubkey (
+void PQCLEAN_NAMESPACE_get_pubkey (
     uint8_t pk[BABYBEAR_PUBLIC_KEY_BYTES],
     const uint8_t sk[BABYBEAR_PRIVATE_KEY_BYTES]
 );
@@ -33,7 +32,7 @@ void BabyBear_get_pubkey (
  * @param[in] pk The other party's public key.
  * @param[in] seed A random seed.
  */
-void BabyBear_encapsulate (
+void PQCLEAN_NAMESPACE_encapsulate (
     uint8_t shared_secret[BABYBEAR_SHARED_SECRET_BYTES],
     uint8_t capsule[BABYBEAR_CAPSULE_BYTES],
     const uint8_t pk[BABYBEAR_PUBLIC_KEY_BYTES],
@@ -49,14 +48,13 @@ void BabyBear_encapsulate (
  * @param[out] shared_secret The shared secret.
  * @param[in] capsule The capsule produced by encapsulate_cca2.
  * @param[in] sk The private key.
- * @return -1 on failure, 0 on success.
- * @warning The value of shared_secret must not be used on failure
  */
-int __attribute__((warn_unused_result)) BabyBear_decapsulate (
+void PQCLEAN_NAMESPACE_decapsulate (
     uint8_t shared_secret[BABYBEAR_SHARED_SECRET_BYTES],
     const uint8_t capsule[BABYBEAR_CAPSULE_BYTES],
     const uint8_t sk[BABYBEAR_PRIVATE_KEY_BYTES]
 );
 
-#endif /*__THREE_BEARS_BABYBEAR_H__*/
+void PQCLEAN_NAMESPACE_secure_bzero (void *s,size_t size);
 
+#endif
