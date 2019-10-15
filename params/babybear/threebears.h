@@ -1,8 +1,8 @@
 #ifndef __THREE_BEARS_BABYBEAR_H__
 #define __THREE_BEARS_BABYBEAR_H__
 
-#include <stdint.h>
 #include <stddef.h> /* for size_t */
+#include <stdint.h>
 
 #define BABYBEAR_KEYGEN_SEED_BYTES 40
 #define BABYBEAR_PRIVATE_KEY_BYTES BABYBEAR_KEYGEN_SEED_BYTES

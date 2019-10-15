@@ -1,8 +1,8 @@
 #ifndef __THREE_BEARS_PAPABEAR_H__
 #define __THREE_BEARS_PAPABEAR_H__
 
-#include <stdint.h>
 #include <stddef.h> /* for size_t */
+#include <stdint.h>
 
 #define PAPABEAR_KEYGEN_SEED_BYTES 40
 #define PAPABEAR_PRIVATE_KEY_BYTES PAPABEAR_KEYGEN_SEED_BYTES

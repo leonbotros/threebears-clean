@@ -1,7 +1,7 @@
 #include "api.h"
+#include "params.h"
 #include "randombytes.h"
 #include "threebears.h"
-#include "params.h"
 
 int PQCLEAN_NAMESPACE_crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
     randombytes(sk, PRIVATE_KEY_BYTES);

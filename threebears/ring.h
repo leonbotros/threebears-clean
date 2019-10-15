@@ -12,7 +12,7 @@ typedef int32_t dslimb_t;
 typedef limb_t gf_t[DIGITS];
 
 /* Serialize a gf_t */
-void PQCLEAN_NAMESPACE_contract(uint8_t ch[GF_BYTES], gf_t ll);
+void PQCLEAN_NAMESPACE_contract(uint8_t ch[GF_BYTES], gf_t a);
 
 /* Deserialize a gf_t */
 void PQCLEAN_NAMESPACE_expand(gf_t ll, const uint8_t ch[GF_BYTES]);

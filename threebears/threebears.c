@@ -1,15 +1,15 @@
 /** ThreeBears reference implementation */
 #include "api.h"
-#include "sp800-185.h"
+#if FEC_BITS
+#include "melas_fec.h"
+#endif
 #include "params.h"
 #include "ring.h"
+#include "sp800-185.h"
 #include "threebears.h"
 
 #define FEC_BYTES ((FEC_BITS+7)/8)
 #define ENC_BITS  (ENC_SEED_BYTES*8 + FEC_BITS)
-#if FEC_BITS
-#include "melas_fec.h"
-#endif
 
 enum { HASH_PURPOSE_UNIFORM = 0, HASH_PURPOSE_KEYGEN = 1, HASH_PURPOSE_ENCAPS = 2, HASH_PURPOSE_PRF = 3 };
 
@@ -64,10 +64,10 @@ static void noise(gf_t x, const shake256incctx *ctx, uint8_t iv) {
 }
 
 /* Expand public key from private key */
-void PQCLEAN_NAMESPACE_get_pubkey(uint8_t *pk, const uint8_t *seed) {
+void PQCLEAN_NAMESPACE_get_pubkey(uint8_t *pk, const uint8_t *sk) {
     shake256incctx ctx;
     threebears_hash_init(&ctx, HASH_PURPOSE_KEYGEN);
-    cshake256_inc_absorb(&ctx, seed, PRIVATE_KEY_BYTES);
+    cshake256_inc_absorb(&ctx, sk, PRIVATE_KEY_BYTES);
 
     shake256incctx ctx2;
     memcpy(&ctx2, &ctx, sizeof(ctx2));
@@ -183,7 +183,7 @@ void PQCLEAN_NAMESPACE_decapsulate(
     PQCLEAN_NAMESPACE_canon(c);
     unsigned rounding = 1<<(LPR_BITS-1), out=0;
     for (signed i=ENC_BITS-1; i>=0; i--) {
-        unsigned j = (i&1) ? (int)(DIGITS-i/2-1) : i/2;
+        unsigned j = (i&1) ? DIGITS-i/2-1 : i/2;
         unsigned our_rlimb = c[j] >> (LGX-LPR_BITS-1);
         unsigned their_rlimb = lpr_data[i*LPR_BITS/8] >> ((i*LPR_BITS) % 8);
         unsigned delta =  their_rlimb*2 - our_rlimb + rounding;

@@ -1,8 +1,8 @@
 #ifndef __THREE_BEARS_MAMABEAR_H__
 #define __THREE_BEARS_MAMABEAR_H__
 
-#include <stdint.h>
 #include <stddef.h> /* for size_t */
+#include <stdint.h>
 
 #define MAMABEAR_KEYGEN_SEED_BYTES 40
 #define MAMABEAR_PRIVATE_KEY_BYTES MAMABEAR_KEYGEN_SEED_BYTES

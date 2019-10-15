@@ -1,8 +1,8 @@
 #ifndef PQCLEAN_NAMESPACE_API_H
 #define PQCLEAN_NAMESPACE_API_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #define PQCLEAN_NAMESPACE_CRYPTO_SECRETKEYBYTES 40
