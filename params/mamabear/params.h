@@ -17,9 +17,9 @@
 #define PRF_KEY_BYTES        PRIVATE_KEY_BYTES
 
 #define BEAR_NAME   "MamaBear"
-#define encapsulate MamaBear_encapsulate
-#define decapsulate MamaBear_decapsulate
-#define get_pubkey  MamaBear_get_pubkey
+#define encapsulate PQCLEAN_NAMESPACE_encapsulate
+#define decapsulate PQCLEAN_NAMESPACE_decapsulate
+#define get_pubkey  PQCLEAN_NAMESPACE_get_pubkey
 
 #define GF_BYTES ((LGX*DIGITS+7)/8)
 #define PUBLIC_KEY_BYTES (MATRIX_SEED_BYTES + DIM*GF_BYTES)

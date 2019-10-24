@@ -59,6 +59,8 @@ void PQCLEAN_NAMESPACE_melas_fec_correct (
     fec_gf_t a = s18update(syndrome18(data, len), fec, MELAS_FEC_BYTES);
     fec_gf_t c, r, htr;
     size_t i;
+    const uint8_t table[9] = {36, 10, 43, 215, 52, 11, 116, 244, 0};
+    fec_gf_t e0, e1;
 
     /* Form a quadratic equation from the syndrome */
     c = mul(step(9, Q, a), step(9, Q, reverse18(a)));
@@ -69,11 +71,11 @@ void PQCLEAN_NAMESPACE_melas_fec_correct (
     a = step(511 - (len + MELAS_FEC_BYTES) * 8, Q, a);
 
     /* Solve using the half trace */
-    const uint8_t table[9] = {36, 10, 43, 215, 52, 11, 116, 244, 0};
     for (i = 0, htr = 0; i < 9; i++) {
         htr ^= ((r >> i) & 1) * table[i];
     }
-    fec_gf_t e0 = mul(a, htr), e1 = e0 ^ a;
+    e0 = mul(a, htr);
+    e1 = e0 ^ a;
 
     /* Correct the errors using the locators */
     for (i = 0; i < len; i++) {

@@ -5,6 +5,7 @@
 void PQCLEAN_NAMESPACE_mac(gf_t c, const gf_t a, const gf_t b) {
     /* Reference non-Karatsuba MAC */
     dslimb_t accum[2 * DIGITS] = {0};
+    dslimb_t chain; 
     size_t i, j;
 
     /* Initialize accumulator = unclarify(c) */
@@ -28,7 +29,7 @@ void PQCLEAN_NAMESPACE_mac(gf_t c, const gf_t a, const gf_t b) {
     }
 
     /* Carry propagate */
-    dslimb_t chain = accum[3 * DIGITS / 2 - 1];
+    chain = accum[3 * DIGITS / 2 - 1];
     accum[3 * DIGITS / 2 - 1] = chain & LMASK;
     chain >>= LGX;
     accum[DIGITS] += chain;
@@ -44,14 +45,17 @@ void PQCLEAN_NAMESPACE_mac(gf_t c, const gf_t a, const gf_t b) {
 /** Reduce a gf_t to canonical form, i.e. strictly less than N. */
 void PQCLEAN_NAMESPACE_canon(gf_t c) {
     const limb_t DELTA = (limb_t)1 << (LGX - 1);
+    slimb_t hi;
+    dslimb_t scarry;
+    dlimb_t carry;
 
     /* Reduce to 0..2p */
-    slimb_t hi = (slimb_t) (c[DIGITS - 1] - DELTA);
+    hi = (slimb_t) (c[DIGITS - 1] - DELTA);
     c[DIGITS - 1] = (limb_t) ((hi & LMASK) + DELTA);
     c[DIGITS / 2] = (limb_t) (c[DIGITS / 2] + (hi >> LGX));
 
     /* Strong reduce.  First subtract modulus */
-    dslimb_t scarry = hi >> LGX;
+    scarry = hi >> LGX;
     for (size_t i = 0; i < DIGITS; i++) {
         scarry = scarry + (slimb_t)c[i] - modulus(i);
         c[i] = scarry & LMASK;
@@ -59,7 +63,7 @@ void PQCLEAN_NAMESPACE_canon(gf_t c) {
     }
 
     /* add it back */
-    dlimb_t carry = 0;
+    carry = 0;
     for (size_t i = 0; i < DIGITS; i++) {
         carry = carry + c[i] + ((dlimb_t)scarry & modulus(i));
         c[i] = carry & LMASK;
