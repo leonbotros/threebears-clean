@@ -15,7 +15,7 @@ void PQCLEAN_NAMESPACE_mac(gf_t c, const gf_t a, const gf_t b) {
     /* Multiply */
     for (i = 0; i < DIGITS; i++) {
         for (j = 0; j < DIGITS; j++) {
-            accum[i + j] += a[i] * b[j];
+            accum[i + j] += (dslimb_t)a[i] * b[j];
         }
     }
 
@@ -37,8 +37,8 @@ void PQCLEAN_NAMESPACE_mac(gf_t c, const gf_t a, const gf_t b) {
         c[i - DIGITS / 2] = chain & LMASK;
         chain >>= LGX;
     }
-    c[0] += chain;
-    c[DIGITS / 2] += chain;
+    c[0] = (limb_t) (c[0] + chain);
+    c[DIGITS / 2] = (limb_t) (c[DIGITS / 2] + chain);
 }
 
 /** Reduce a gf_t to canonical form, i.e. strictly less than N. */
@@ -46,9 +46,9 @@ void PQCLEAN_NAMESPACE_canon(gf_t c) {
     const limb_t DELTA = (limb_t)1 << (LGX - 1);
 
     /* Reduce to 0..2p */
-    slimb_t hi = c[DIGITS - 1] - DELTA;
-    c[DIGITS - 1] = (hi & LMASK) + DELTA;
-    c[DIGITS / 2] += hi >> LGX;
+    slimb_t hi = (slimb_t) (c[DIGITS - 1] - DELTA);
+    c[DIGITS - 1] = (limb_t) ((hi & LMASK) + DELTA);
+    c[DIGITS / 2] = (limb_t) (c[DIGITS / 2] + (hi >> LGX));
 
     /* Strong reduce.  First subtract modulus */
     dslimb_t scarry = hi >> LGX;
@@ -61,7 +61,7 @@ void PQCLEAN_NAMESPACE_canon(gf_t c) {
     /* add it back */
     dlimb_t carry = 0;
     for (size_t i = 0; i < DIGITS; i++) {
-        carry = carry + c[i] + (scarry & modulus(i));
+        carry = carry + c[i] + ((dlimb_t)scarry & modulus(i));
         c[i] = carry & LMASK;
         carry >>= LGX;
     }
@@ -74,7 +74,7 @@ void PQCLEAN_NAMESPACE_contract(uint8_t ch[GF_BYTES], gf_t a) {
     PQCLEAN_NAMESPACE_canon(a);
     for (size_t i = 0; i < GF_BYTES; i++) {
         pos = (i * 8) / LGX;
-        ch[i] = a[pos] >> ((i * 8) % LGX);
+        ch[i] = (uint8_t)(a[pos] >> ((i * 8) % LGX));
         if (i < GF_BYTES - 1) {
             ch[i] |= (uint8_t)(a[pos + 1] << (LGX - ((i * 8) % LGX)));
         }
@@ -87,11 +87,11 @@ void PQCLEAN_NAMESPACE_expand(gf_t ll, const uint8_t ch[GF_BYTES]) {
 
     for (size_t i = 0, j = 0, bbits = 0; i < GF_BYTES; i++) {
         tmp = ch[i];
-        buffer |= tmp << bbits;
+        buffer |= (limb_t)(tmp << bbits);
         bbits += 8;
         if (bbits >= LGX) {
             ll[j++] = buffer & LMASK;
-            buffer = tmp >> (LGX - (bbits - 8));
+            buffer = (limb_t)(tmp >> (LGX - (bbits - 8)));
             bbits = bbits - LGX;
         }
     }

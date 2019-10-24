@@ -18,8 +18,8 @@ static void threebears_hash_init(
     shake256incctx *ctx,
     uint8_t purpose
 ) {
-    const char S[] = "ThreeBears";
-    cshake256_inc_init(ctx, NULL, 0, (const uint8_t *)S, strlen(S));
+    const unsigned char S[] = "ThreeBears";
+    cshake256_inc_init(ctx, NULL, 0, (const uint8_t *)S, sizeof(S)-1);
     const uint8_t pblock[15] = {
         VERSION, PRIVATE_KEY_BYTES, MATRIX_SEED_BYTES, ENC_SEED_BYTES,
         IV_BYTES, SHARED_SECRET_BYTES, LGX, DIGITS & 0xFF, DIGITS >> 8, DIM,
@@ -44,10 +44,10 @@ static void uniform(gf_t matrix, const uint8_t *seed, uint8_t iv) {
 /** The ThreeBears error distribution */
 static slimb_t psi(uint8_t ci) {
     int sample = 0, var = VAR_TIMES_128;
-    for (; var > 64; var -= 64, ci <<= 2) {
+    for (; var > 64; var -= 64, ci = (uint8_t)(ci << 2)) {
         sample += ((ci + 64) >> 8) + ((ci - 64) >> 8);
     }
-    return sample + ((ci + var) >> 8) + ((ci - var) >> 8);
+    return (slimb_t)(sample + ((ci + var) >> 8) + ((ci - var) >> 8));
 }
 
 /** Sample a vector of n noise elements */
@@ -59,7 +59,7 @@ static void noise(gf_t x, const shake256incctx *ctx, uint8_t iv) {
     cshake256_inc_finalize(&ctx2);
     cshake256_inc_squeeze(c, DIGITS, &ctx2);
     for (size_t i = 0; i < DIGITS; i++) {
-        x[i] = psi(c[i]) + modulus(i);
+        x[i] = (limb_t)(psi(c[i]) + modulus(i));
     }
 }
 
@@ -75,13 +75,13 @@ void PQCLEAN_NAMESPACE_get_pubkey(uint8_t *pk, const uint8_t *sk) {
     cshake256_inc_squeeze(pk, MATRIX_SEED_BYTES, &ctx2);
 
     gf_t sk_expanded[DIM], b, c;
-    for (size_t i = 0; i < DIM; i++) {
+    for (uint8_t i = 0; i < DIM; i++) {
         noise(sk_expanded[i], &ctx, i);
     }
-    for (size_t i = 0; i < DIM; i++) {
-        noise(c, &ctx, i + DIM);
-        for (size_t j = 0; j < DIM; j++) {
-            uniform(b, pk, i + DIM * j);
+    for (uint8_t i = 0; i < DIM; i++) {
+        noise(c, &ctx, (uint8_t)(i + DIM));
+        for (uint8_t j = 0; j < DIM; j++) {
+            uniform(b, pk, (uint8_t) (i + DIM * j));
             PQCLEAN_NAMESPACE_mac(c, b, sk_expanded[j]);
         }
         PQCLEAN_NAMESPACE_contract(&pk[MATRIX_SEED_BYTES + i * GF_BYTES], c);
@@ -107,21 +107,21 @@ void PQCLEAN_NAMESPACE_encapsulate(
     cshake256_inc_absorb(&ctx, seed, ENC_SEED_BYTES + IV_BYTES);
 
     gf_t sk_expanded[DIM], b, c;
-    for (size_t i = 0; i < DIM; i++) {
+    for (uint8_t i = 0; i < DIM; i++) {
         noise(sk_expanded[i], &ctx, i);
     }
-    for (size_t i = 0; i < DIM; i++) {
-        noise(c, &ctx, i + DIM);
-        for (size_t j = 0; j < DIM; j++) {
-            uniform(b, pk, j + DIM * i);
+    for (uint8_t i = 0; i < DIM; i++) {
+        noise(c, &ctx, (uint8_t)(i + DIM));
+        for (uint8_t j = 0; j < DIM; j++) {
+            uniform(b, pk, (uint8_t)(j + DIM * i));
             PQCLEAN_NAMESPACE_mac(c, b, sk_expanded[j]);
         }
         PQCLEAN_NAMESPACE_contract(&capsule[i * GF_BYTES], c);
     }
-    noise(c, &ctx, 2 * DIM);
+    noise(c, &ctx, (uint8_t)(2 * DIM));
 
     /* Calculate approximate shared secret */
-    for (size_t i = 0; i < DIM; i++) {
+    for (uint8_t i = 0; i < DIM; i++) {
         PQCLEAN_NAMESPACE_expand(b, &pk[MATRIX_SEED_BYTES + i * GF_BYTES]);
         PQCLEAN_NAMESPACE_mac(c, b, sk_expanded[i]);
     }
@@ -148,10 +148,10 @@ void PQCLEAN_NAMESPACE_encapsulate(
 
     /* Export with rounding */
     for (size_t i = 0; i < ENC_BITS; i += 2) {
-        limb_t h = tbi[i / 8] >> (i % 8);
-        unsigned rlimb0 = (c[i / 2]          >> (LGX - LPR_BITS)) + (h << 3);
-        unsigned rlimb1 = (c[DIGITS - i / 2 - 1] >> (LGX - LPR_BITS)) + ((h >> 1) << 3);
-        lpr_data[i / 2] = (rlimb0 & 0xF) | rlimb1 << 4;
+        limb_t h = (limb_t)(tbi[i / 8] >> (i % 8));
+        dlimb_t rlimb0 = (dlimb_t)((c[i / 2]          >> (LGX - LPR_BITS)) + (h << 3));
+        dlimb_t rlimb1 = (dlimb_t)((c[DIGITS - i / 2 - 1] >> (LGX - LPR_BITS)) + ((h >> 1) << 3));
+        lpr_data[i / 2] = (uint8_t)((rlimb0 & 0xF) | rlimb1 << 4);
     }
 
     cshake256_inc_finalize(&ctx);
@@ -172,7 +172,7 @@ void PQCLEAN_NAMESPACE_decapsulate(
     cshake256_inc_absorb(&ctx,sk,PRIVATE_KEY_BYTES);
     
     gf_t ska,b,c={0};
-    for (unsigned i=0; i<DIM; i++) {
+    for (uint8_t i=0; i<DIM; i++) {
         PQCLEAN_NAMESPACE_expand(b,&capsule[i*GF_BYTES]);
         noise(ska,&ctx,i);
         PQCLEAN_NAMESPACE_mac(c,ska,b);
@@ -181,15 +181,15 @@ void PQCLEAN_NAMESPACE_decapsulate(
     /* Recover seed from LPR data */
     uint8_t seed[ENC_SEED_BYTES+FEC_BYTES+IV_BYTES];
     PQCLEAN_NAMESPACE_canon(c);
-    unsigned rounding = 1<<(LPR_BITS-1), out=0;
-    for (signed i=ENC_BITS-1; i>=0; i--) {
-        unsigned j = (i&1) ? DIGITS-i/2-1 : i/2;
-        unsigned our_rlimb = c[j] >> (LGX-LPR_BITS-1);
-        unsigned their_rlimb = lpr_data[i*LPR_BITS/8] >> ((i*LPR_BITS) % 8);
-        unsigned delta =  their_rlimb*2 - our_rlimb + rounding;
-        out |= ((delta>>LPR_BITS) & 1)<<(i%8);
+    limb_t rounding = 1<<(LPR_BITS-1), out=0;
+    for (int32_t i=ENC_BITS-1; i>=0; i--) {
+        size_t j = (size_t) ((i&1) ? DIGITS-i/2-1 : i/2);
+        limb_t our_rlimb = (limb_t)(c[j] >> (LGX-LPR_BITS-1));
+        limb_t their_rlimb = (limb_t)(lpr_data[i*LPR_BITS/8] >> ((i*LPR_BITS) % 8));
+        limb_t delta =  (limb_t)(their_rlimb*2 - our_rlimb + rounding);
+        out |= (limb_t)(((delta>>LPR_BITS) & 1)<<(i%8));
         if (i%8==0) {
-            seed[i/8] = out;
+            seed[i/8] = (uint8_t)out;
             out = 0;
         }
     }
@@ -207,11 +207,11 @@ void PQCLEAN_NAMESPACE_decapsulate(
     PQCLEAN_NAMESPACE_encapsulate(shared_secret,capsule2,pk,seed);
     
     /* Check capsule == capsule2 in constant time */
-    unsigned char ret = 0;
-    for (unsigned i=0; i<CAPSULE_BYTES; i++) {
+    uint8_t ret = 0;
+    for (size_t i=0; i<CAPSULE_BYTES; i++) {
         ret |= capsule[i] ^ capsule2[i];
     }
-    unsigned ok = ((int)ret - 1) >> 8;
+    uint8_t ok = (uint8_t)(((int)ret - 1) >> 8);
 
     /* Calculate PRF key */
     uint8_t sep = 0xFF;
@@ -228,8 +228,8 @@ void PQCLEAN_NAMESPACE_decapsulate(
     cshake256_inc_finalize(&ctx);
     cshake256_inc_squeeze(prfout, SHARED_SECRET_BYTES, &ctx);
 
-    for (unsigned i=0; i<SHARED_SECRET_BYTES; i++) {
-        shared_secret[i] = (shared_secret[i] & ok) | (prfout[i] & ~ok);
+    for (size_t i=0; i<SHARED_SECRET_BYTES; i++) {
+        shared_secret[i] = (uint8_t)((shared_secret[i] & ok) | (prfout[i] & ~ok));
     }
 #else /* !CCA */
     /* Recalculate matrix seed */
