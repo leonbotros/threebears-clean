@@ -1,6 +1,11 @@
 /** Ring arithmetic implementation */
 #include "ring.h"
 
+/** Return the i'th limb of the modulus */
+static inline limb_t modulus(size_t i) {
+    return (i==DIGITS/2) ? LMASK-1 : LMASK;
+}
+
 /** Multiply and accumulate c += a*b */
 void PQCLEAN_NAMESPACE_mac(gf_t c, const gf_t a, const gf_t b) {
     /* Reference non-Karatsuba MAC */

@@ -23,9 +23,4 @@ void PQCLEAN_NAMESPACE_mac(gf_t c, const gf_t a, const gf_t b);
 /* Reduce ring element to canonical form */
 void PQCLEAN_NAMESPACE_canon(gf_t c);
 
-/** Return the i'th limb of the modulus */
-static inline limb_t modulus(size_t i) {
-    return (i==DIGITS/2) ? LMASK-1 : LMASK;
-}
-
 #endif
