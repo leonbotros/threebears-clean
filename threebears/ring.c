@@ -2,7 +2,7 @@
 #include "ring.h"
 
 /** Return the i'th limb of the modulus */
-static inline limb_t modulus(size_t i) {
+limb_t PQCLEAN_NAMESPACE_modulus(size_t i) {
     return (i==DIGITS/2) ? LMASK-1 : LMASK;
 }
 
@@ -62,7 +62,7 @@ void PQCLEAN_NAMESPACE_canon(gf_t c) {
     /* Strong reduce.  First subtract modulus */
     scarry = hi >> LGX;
     for (size_t i = 0; i < DIGITS; i++) {
-        scarry = scarry + (slimb_t)c[i] - modulus(i);
+        scarry = scarry + (slimb_t)c[i] - PQCLEAN_NAMESPACE_modulus(i);
         c[i] = scarry & LMASK;
         scarry >>= LGX;
     }
@@ -70,7 +70,7 @@ void PQCLEAN_NAMESPACE_canon(gf_t c) {
     /* add it back */
     carry = 0;
     for (size_t i = 0; i < DIGITS; i++) {
-        carry = carry + c[i] + ((dlimb_t)scarry & modulus(i));
+        carry = carry + c[i] + ((dlimb_t)scarry & PQCLEAN_NAMESPACE_modulus(i));
         c[i] = carry & LMASK;
         carry >>= LGX;
     }
