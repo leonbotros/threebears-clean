@@ -183,12 +183,10 @@ void PQCLEAN_NAMESPACE_decapsulate(
     limb_t our_rlimb, their_rlimb, delta;
 #if CCA
     uint8_t pk[PUBLIC_KEY_BYTES], capsule2[CAPSULE_BYTES];
-#else 
-    uint8_t matrix_seed[MATRIX_SEED_BYTES];
-#endif
-#if IV_BYTES
     uint8_t ret, ok, sep, prfk[PRF_KEY_BYTES];
     uint8_t prfout[SHARED_SECRET_BYTES];
+#else 
+    uint8_t matrix_seed[MATRIX_SEED_BYTES];
 #endif
     
     /* Calculate approximate shared secret */

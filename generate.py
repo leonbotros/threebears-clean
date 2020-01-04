@@ -5,12 +5,15 @@ from pathlib import Path
 TARGET_FOLDER = "../PQClean/crypto_kem/"
 
 
-ALL = ['FEC_BITS','IV_BYTES', 'CCA']
+ALL = ['FEC_BITS', 'IV_BYTES', 'CCA']
 
 params = [
     {'name': 'babybear', 'def' : ALL},
     {'name': 'mamabear', 'def' : ALL},
     {'name': 'papabear', 'def' : ALL},
+    {'name': 'babybear-ephem', 'def' : ['FEC_BITS', 'IV_BYTES']},
+    {'name': 'mamabear-ephem', 'def' : ['FEC_BITS', 'IV_BYTES']},
+    {'name': 'papabear-ephem', 'def' : ['FEC_BITS', 'IV_BYTES']},
 ]
 for param in params:
     parameterSet = param['name']
